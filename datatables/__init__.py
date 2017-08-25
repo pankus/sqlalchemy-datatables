@@ -277,7 +277,7 @@ class DataTables:
                     query=query, exclude=i)
                 v = filtered.add_columns(col.sqla_expr).distinct().all()
                 self.yadcf_params.append(
-                    ('yadcf_data_{:d}'.format(i), [r[0] for r in v]))
+                    ('yadcf_data_{:d}'.format(i), [r[0] for r in set(v)]))
 
     def run(self):
         """Launch filtering, sorting and paging to output results."""
