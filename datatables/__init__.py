@@ -143,7 +143,7 @@ search_methods = {
 ColumnTuple = namedtuple(
     'ColumnDT',
     ['sqla_expr', 'column_name', 'mData', 'search_method',
-     'nulls_order', 'global_search'])
+     'nulls_order', 'global_search', 'sort_method'])
 
 
 class InvalidParameter(Exception):
@@ -178,7 +178,7 @@ class ColumnDT(ColumnTuple):
 
     def __new__(cls, sqla_expr, column_name=None, mData=None,
                 search_method='string_contains', nulls_order=None,
-                global_search=True):
+                global_search=True, sort_method=None):
         """Set default values for mData and filter.
 
         On creation, sets default None values for mData and string value for
@@ -194,7 +194,7 @@ class ColumnDT(ColumnTuple):
 
         return super(ColumnDT, cls).__new__(
             cls, sqla_expr, column_name, mData, search_method,
-            nulls_order, global_search)
+            nulls_order, global_search, sort_method)
 
 
 class DataTables:
@@ -374,6 +374,8 @@ class DataTables:
             column = self.columns[column_nr]
             direction = self.params.get('order[{:d}][dir]'.format(i))
             sort_expr = column.sqla_expr
+            if column.sort_method is not None:
+                sort_expr = column.sort_method
             if direction == 'asc':
                 sort_expr = sort_expr.asc()
             elif direction == 'desc':

@@ -62,7 +62,7 @@ def data(request):
     #    in the table
     columns = [
         ColumnDT(User.id),
-        ColumnDT(User.name),
+        ColumnDT(User.name, sort_method=func.public.naturalsort(User.name)),
         ColumnDT(Address.description),
         ColumnDT(func.strftime('%d-%m-%Y', User.birthday)),
         ColumnDT(User.age)

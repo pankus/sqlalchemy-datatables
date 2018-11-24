@@ -1,6 +1,7 @@
 """Flask tutorial views."""
 from flask import render_template, request, jsonify
 from flask import Flask
+from sqlalchemy import func
 
 from datatables import ColumnDT, DataTables
 
@@ -33,7 +34,7 @@ def data():
     # defining columns
     columns = [
         ColumnDT(User.id),
-        ColumnDT(User.name),
+        ColumnDT(User.name, sort_method=func.public.naturalsort(User.name)),
         ColumnDT(Address.description),
         ColumnDT(User.created_at)
     ]

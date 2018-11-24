@@ -8,6 +8,45 @@ It is framework agnostic, tested with `Pyramid <http://www.pylonsproject.org/>`_
 
 It only depends on SQLAlchemy, and is compatible with version **1.10.x** of DataTables.
 
+**Small contribution:**
+In this fork has been added a natural sort method for PostgreSQL models. It needs a custom function to be created in the db:
+
+.. code-block:: sql
+    
+    --
+    -- This file replaces a previous one which is now available at
+    -- /junk/naturalsort-hack.sql which had certain drawbacks and
+    -- was far more complex. This approach is simpler, though it
+    -- has the drawback of not dealing with locales (all comparisons
+    -- end up made as if in C locale).
+    --
+    -- To use:
+    --
+    --  SELECT ... ORDER BY naturalsort(column);
+    --
+    -- +optionally,
+    --
+    --  CREATE INDEX ON yourtable (naturalsort(column));
+    --
+    -- (The basic method is to prefix each numeric substring with its
+    -- length, then sort as a bytea to get C locale and \x00 delimiters
+    -- between fragments)
+    --
+
+    create or replace function naturalsort(text)
+    returns bytea
+    language sql
+    immutable strict
+    as $f$
+    select string_agg(convert_to(coalesce(r[2],
+                                length(length(r[1])::text) || length(r[1])::text || r[1]),
+                                'SQL_ASCII'),'\x00')
+        from regexp_matches($1, '0*([0-9]+)|([^0-9]+)', 'g') r;
+    $f$;
+
+    -- end
+
+
 |Build Status| |PyPi Version| |Coverage|
 
 .. |Build Status| image:: https://travis-ci.org/Pegase745/sqlalchemy-datatables.svg?branch=master
